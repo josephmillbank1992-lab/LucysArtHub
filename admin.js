@@ -1,4 +1,6 @@
 (() => {
+  const SUPABASE_URL = 'https://wcpmshpvpiogecjupdcn.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_b6bd349iOBoNhDTfaOxAMA_5Z7Yoqlw';
   const loginCard = document.querySelector('#loginCard');
   const commentsPanel = document.querySelector('#commentsPanel');
   const loginForm = document.querySelector('#loginForm');
@@ -38,20 +40,21 @@
     commentsPanel.hidden = false;
   }
 
-  async function api(path = '', options = {}) {
-    const response = await fetch(`/api/admin-comments${path}`, {
-      ...options,
+  async function rpc(functionName, body) {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
+      method: 'POST',
       headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${password}`,
-        ...options.headers
-      }
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify(body)
     });
-    const data = await response.json().catch(() => ({}));
+    const data = await response.json().catch(() => null);
     if (!response.ok) {
-      const error = new Error(data.error || 'Request failed');
+      const error = new Error(response.status === 400 || response.status === 401 ? 'Incorrect admin password.' : 'Request failed.');
       error.status = response.status;
-      error.code = data.code;
       throw error;
     }
     return data;
@@ -60,10 +63,7 @@
   function formatDate(value) {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return '';
-    return new Intl.DateTimeFormat('en-GB', {
-      dateStyle: 'medium',
-      timeStyle: 'short'
-    }).format(date);
+    return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
   }
 
   function renderComments(comments) {
@@ -94,7 +94,7 @@
         button.disabled = true;
         button.textContent = 'Deleting…';
         try {
-          await api(`?id=${encodeURIComponent(comment.id)}`, { method: 'DELETE' });
+          await rpc('admin_delete_comment', { admin_password: password, comment_id: comment.id });
           card.remove();
           await loadComments();
         } catch (error) {
@@ -111,20 +111,13 @@
   async function loadComments() {
     commentSummary.textContent = 'Loading comments…';
     try {
-      const data = await api();
+      const comments = await rpc('admin_comments', { admin_password: password });
       showPanel();
-      renderComments(data.comments || []);
+      renderComments(Array.isArray(comments) ? comments : []);
       return true;
     } catch (error) {
-      if (error.status === 401) {
-        lock();
-        setStatus('That password was not accepted.', 'error');
-      } else if (error.status === 503 || error.code === 'CONFIG_REQUIRED') {
-        lock();
-        setStatus('The panel is built, but the secure data store and admin password still need to be connected in Vercel.', 'setup');
-      } else {
-        setStatus('The private panel could not load. Please try again.', 'error');
-      }
+      lock();
+      setStatus(error.message || 'The private panel could not load.', 'error');
       return false;
     }
   }
@@ -141,9 +134,6 @@
   refreshComments?.addEventListener('click', loadComments);
   lockPanel?.addEventListener('click', lock);
 
-  if (password) {
-    loadComments();
-  } else {
-    adminPassword.focus();
-  }
+  if (password) loadComments();
+  else adminPassword.focus();
 })();
