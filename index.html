@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/enhancements.css" />
 </head>
 <body>
   <div class="sparkle-layer" aria-hidden="true"></div>
@@ -63,7 +64,10 @@
               <span>Lucy's favourite</span>
               <strong>Eeveely</strong>
             </div>
-            <button class="heart-button featured-heart" type="button" data-art="eeveely" aria-label="Favourite Eeveely">♡</button>
+            <div class="like-control">
+              <button class="heart-button featured-heart" type="button" data-art="eeveely" aria-label="Like Eeveely">♡</button>
+              <span class="like-count" data-like-count="eeveely" aria-label="Eeveely likes">0 likes</span>
+            </div>
           </div>
         </article>
       </div>
@@ -71,8 +75,12 @@
 
     <section class="marquee" aria-label="Things Lucy loves">
       <div class="marquee-track">
-        <span>♥ Cute dogs</span><span>✦ Unicorns</span><span>♛ Princesses</span><span>✎ Drawing people</span><span>✨ Sparkles</span><span>♥ Family & friends</span>
-        <span>♥ Cute dogs</span><span>✦ Unicorns</span><span>♛ Princesses</span><span>✎ Drawing people</span><span>✨ Sparkles</span><span>♥ Family & friends</span>
+        <div class="marquee-group">
+          <span>♥ Cute dogs</span><span>✦ Unicorns</span><span>♛ Princesses</span><span>✎ Drawing people</span><span>✨ Sparkles</span><span>♥ Family &amp; friends</span>
+        </div>
+        <div class="marquee-group" aria-hidden="true">
+          <span>♥ Cute dogs</span><span>✦ Unicorns</span><span>♛ Princesses</span><span>✎ Drawing people</span><span>✨ Sparkles</span><span>♥ Family &amp; friends</span>
+        </div>
       </div>
     </section>
 
@@ -105,7 +113,10 @@
               <span>Pokémon inspired</span>
               <h3>Eeveely</h3>
             </div>
-            <button class="heart-button" type="button" data-art="eeveely" aria-label="Favourite Eeveely">♡</button>
+            <div class="like-control">
+              <button class="heart-button" type="button" data-art="eeveely" aria-label="Like Eeveely">♡</button>
+              <span class="like-count" data-like-count="eeveely">0 likes</span>
+            </div>
           </div>
           <p>Lucy's favourite picture. It won 2nd place in a Pokémon drawing competition.</p>
         </article>
@@ -119,7 +130,10 @@
               <span>Animals</span>
               <h3>Red Kite Emily</h3>
             </div>
-            <button class="heart-button" type="button" data-art="red-kite-emily" aria-label="Favourite Red Kite Emily">♡</button>
+            <div class="like-control">
+              <button class="heart-button" type="button" data-art="red-kite-emily" aria-label="Like Red Kite Emily">♡</button>
+              <span class="like-count" data-like-count="red-kite-emily">0 likes</span>
+            </div>
           </div>
           <p>A flying red kite with big wings, tiny details and Lucy's own name for the bird.</p>
         </article>
@@ -133,7 +147,10 @@
               <span>Descendants</span>
               <h3>Chloe &amp; Red</h3>
             </div>
-            <button class="heart-button" type="button" data-art="chloe-red" aria-label="Favourite Chloe and Red">♡</button>
+            <div class="like-control">
+              <button class="heart-button" type="button" data-art="chloe-red" aria-label="Like Chloe and Red">♡</button>
+              <span class="like-count" data-like-count="chloe-red">0 likes</span>
+            </div>
           </div>
           <p>Lucy likes using the movie to help decide which colours and backgrounds belong in the picture.</p>
         </article>
@@ -147,7 +164,10 @@
               <span>Descendants</span>
               <h3>Red</h3>
             </div>
-            <button class="heart-button" type="button" data-art="red" aria-label="Favourite Red">♡</button>
+            <div class="like-control">
+              <button class="heart-button" type="button" data-art="red" aria-label="Like Red">♡</button>
+              <span class="like-count" data-like-count="red">0 likes</span>
+            </div>
           </div>
           <p>Careful colouring, hearts and lots of small details inspired by one of Lucy's favourite things to watch.</p>
         </article>
@@ -195,11 +215,20 @@
 
     <section class="play-section section-shell">
       <div class="play-card">
-        <span class="eyebrow">One silly thing was allowed</span>
-        <h2>Can you catch the button?</h2>
-        <p>Lucy asked for buttons that run away. This one took that very seriously.</p>
-        <div class="runaway-zone" id="runawayZone">
-          <button class="pill-button runaway-button" id="runawayButton" type="button">Catch me! 🦄</button>
+        <div class="desktop-play">
+          <span class="eyebrow">One silly thing was allowed</span>
+          <h2>Can you catch the button?</h2>
+          <p>Lucy asked for buttons that run away. This one took that very seriously.</p>
+          <div class="runaway-zone" id="runawayZone">
+            <button class="pill-button runaway-button" id="runawayButton" type="button">Catch me! 🦄</button>
+          </div>
+        </div>
+        <div class="mobile-play" aria-live="polite">
+          <span class="eyebrow">Pocket-sized castle magic</span>
+          <h2>Cast an art spell!</h2>
+          <p>Tap the magic wand and see which cheerful spell the castle gives you.</p>
+          <button class="pill-button magic-wand-button" id="mobileMagicButton" type="button">Wave the magic wand ✨</button>
+          <div class="magic-result" id="mobileMagicResult">Your spell is waiting…</div>
         </div>
       </div>
     </section>
@@ -209,7 +238,7 @@
     <div class="footer-brand"><span aria-hidden="true">♛</span><strong>Lucy's Belle Art Castle</strong></div>
     <p>A little corner of the internet for art, imagination and happy colours.</p>
     <p class="privacy-note">Only Lucy's first name and artwork are shared here. No school, location or personal contact details.</p>
-    <p class="builder-credit">Designed &amp; built with Dad · <strong>The Website Mill</strong></p>
+    <p class="builder-credit">Designed &amp; built with Dad · <a href="https://thewebsitemill.vercel.app/" target="_blank" rel="noopener noreferrer"><strong>The Website Mill</strong></a></p>
   </footer>
 
   <dialog class="art-modal" id="artModal">
@@ -219,9 +248,40 @@
       <span id="modalCategory"></span>
       <h2 id="modalTitle"></h2>
       <p id="modalDescription"></p>
+      <div class="modal-like-summary" aria-live="polite"><span aria-hidden="true">♥</span> <strong id="modalLikeCount">0</strong> <span id="modalLikeWord">likes</span></div>
+
+      <section class="comment-panel" aria-labelledby="commentHeading">
+        <div class="comment-panel-heading">
+          <div>
+            <span class="comment-kicker">A note for the artist</span>
+            <h3 id="commentHeading">Leave Lucy a comment about her art</h3>
+          </div>
+          <span class="comment-heart" aria-hidden="true">♥</span>
+        </div>
+        <p class="comment-intro">Tell Lucy what you liked about this picture. Your comment goes to Dad's private review panel and is not posted publicly.</p>
+        <form id="commentForm">
+          <input type="hidden" id="commentArtwork" name="artworkId" value="" />
+          <div class="comment-fields">
+            <label>
+              <span>Your name</span>
+              <input id="commentName" name="name" type="text" maxlength="40" autocomplete="name" required placeholder="e.g. Hannah" />
+            </label>
+            <label class="comment-field-wide">
+              <span>Your comment</span>
+              <textarea id="commentText" name="comment" rows="4" maxlength="500" required placeholder="I really like the colours you used because…"></textarea>
+            </label>
+          </div>
+          <label class="honeypot" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
+          <div class="comment-submit-row">
+            <button class="pill-button primary" id="commentSubmit" type="submit">Send Lucy a lovely comment 💌</button>
+            <p id="commentStatus" class="comment-status" role="status"></p>
+          </div>
+        </form>
+      </section>
     </div>
   </dialog>
 
   <script src="/app.js"></script>
+  <script src="/engagement.js"></script>
 </body>
 </html>
