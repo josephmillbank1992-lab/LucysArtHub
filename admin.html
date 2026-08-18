@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="theme-color" content="#302447" />
+  <title>Lucy’s Art Castle · Dad’s Private Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin.css" />
+</head>
+<body>
+  <main class="admin-shell">
+    <header class="admin-header">
+      <div>
+        <span class="eyebrow">Private parent area</span>
+        <h1>Dad’s comment panel</h1>
+        <p>Comments left for Lucy are kept private here. They are never shown automatically on the public gallery.</p>
+      </div>
+      <a href="/" class="back-link">← Back to the gallery</a>
+    </header>
+
+    <section class="login-card" id="loginCard">
+      <div class="lock-icon" aria-hidden="true">🔒</div>
+      <div>
+        <h2>Unlock the panel</h2>
+        <p>Enter the admin password configured in Vercel. It is kept only for this browser tab.</p>
+      </div>
+      <form id="loginForm">
+        <label>
+          <span>Admin password</span>
+          <input id="adminPassword" type="password" autocomplete="current-password" required />
+        </label>
+        <button type="submit">Open private comments</button>
+        <p id="loginStatus" class="status" role="status"></p>
+      </form>
+    </section>
+
+    <section class="comments-panel" id="commentsPanel" hidden>
+      <div class="panel-heading">
+        <div>
+          <span class="eyebrow">Lucy’s guestbook</span>
+          <h2>Private comments</h2>
+          <p id="commentSummary">Loading comments…</p>
+        </div>
+        <div class="panel-actions">
+          <button id="refreshComments" type="button">Refresh</button>
+          <button id="lockPanel" type="button" class="secondary">Lock panel</button>
+        </div>
+      </div>
+      <div class="comment-list" id="commentList"></div>
+    </section>
+  </main>
+
+  <template id="commentTemplate">
+    <article class="comment-card">
+      <div class="comment-topline">
+        <div>
+          <span class="artwork-pill"></span>
+          <h3 class="visitor-name"></h3>
+        </div>
+        <time class="comment-date"></time>
+      </div>
+      <p class="comment-body"></p>
+      <div class="comment-actions">
+        <button class="delete-comment" type="button">Delete comment</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="/admin.js"></script>
+</body>
+</html>
