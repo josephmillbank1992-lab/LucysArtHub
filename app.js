@@ -1,3 +1,37 @@
+const assetDataFiles = {
+  eeveely: '/assets-data/eeveely.b64',
+  'red-kite-emily': '/assets-data/red-kite-emily.b64',
+  'chloe-red': '/assets-data/chloe-and-red.b64',
+  red: '/assets-data/red.b64'
+};
+const assetUrls = {};
+
+async function loadArtworkAssets() {
+  await Promise.all(Object.entries(assetDataFiles).map(async ([id, path]) => {
+    const response = await fetch(path);
+    if (!response.ok) throw new Error(`Could not load ${id}`);
+    const base64 = (await response.text()).trim();
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+    assetUrls[id] = URL.createObjectURL(new Blob([bytes], { type: 'image/webp' }));
+  }));
+
+  const fileToId = {
+    'eeveely.webp': 'eeveely',
+    'red-kite-emily.webp': 'red-kite-emily',
+    'chloe-and-red.webp': 'chloe-red',
+    'red.webp': 'red'
+  };
+  document.querySelectorAll('img[src*="/assets/"]').forEach(img => {
+    const file = img.getAttribute('src').split('/').pop();
+    const id = fileToId[file];
+    if (id && assetUrls[id]) img.src = assetUrls[id];
+  });
+}
+
+loadArtworkAssets().catch(error => console.error('Artwork loading error:', error));
+
 const artworks = {
   eeveely: {
     title: 'Eeveely',
@@ -29,6 +63,7 @@ const artworks = {
   }
 };
 
+const keys = Object.keys(artworks);
 const modal = document.querySelector('#artModal');
 const modalImage = document.querySelector('#modalImage');
 const modalTitle = document.querySelector('#modalTitle');
@@ -89,7 +124,7 @@ document.querySelectorAll('.heart-button').forEach(button => {
 function openArtwork(id) {
   const art = artworks[id];
   if (!art) return;
-  modalImage.src = art.image;
+  modalImage.src = assetUrls[id] || art.image;
   modalImage.alt = art.alt;
   modalTitle.textContent = art.title;
   modalCategory.textContent = art.category;
@@ -139,7 +174,7 @@ document.querySelector('#swapArt')?.addEventListener('click', () => {
   const art = artworks[swapChoices[swapIndex]];
   swapFrame.classList.add('is-swapping');
   window.setTimeout(() => {
-    swapImage.src = art.image;
+    swapImage.src = assetUrls[swapChoices[swapIndex]] || art.image;
     swapImage.alt = art.alt;
     swapLabel.textContent = art.title;
     swapFrame.classList.remove('is-swapping');
