@@ -17,6 +17,12 @@
     'chloe-red': 'Chloe & Red',
     red: 'Red'
   };
+  const artworkImages = {
+    eeveely: '/assets/eeveely.webp',
+    'red-kite-emily': '/assets/red-kite-emily.webp',
+    'chloe-red': '/assets/chloe-and-red.webp',
+    red: '/assets/red.webp'
+  };
 
   let password = sessionStorage.getItem('lucy-art-admin-password') || '';
 
@@ -81,9 +87,22 @@
     comments.forEach(comment => {
       const node = template.content.cloneNode(true);
       const card = node.querySelector('.comment-card');
-      node.querySelector('.artwork-pill').textContent = artworkNames[comment.artwork_id] || comment.artwork_id;
+      const artworkName = artworkNames[comment.artwork_id] || comment.artwork_id || 'Artwork';
+      const artworkImage = artworkImages[comment.artwork_id];
+      const image = node.querySelector('.comment-artwork-image');
+
+      node.querySelector('.artwork-pill').textContent = artworkName;
+      node.querySelector('.comment-artwork-name').textContent = artworkName;
       node.querySelector('.visitor-name').textContent = comment.visitor_name || 'Visitor';
       node.querySelector('.comment-body').textContent = comment.comment || '';
+
+      if (artworkImage) {
+        image.src = artworkImage;
+        image.alt = `${artworkName}, the artwork this comment was left on`;
+      } else {
+        image.closest('.comment-artwork-preview')?.remove();
+      }
+
       const time = node.querySelector('.comment-date');
       time.textContent = formatDate(comment.created_at);
       time.dateTime = comment.created_at || '';
