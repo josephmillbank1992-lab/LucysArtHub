@@ -75,30 +75,46 @@ let audioCtx;
 
 function playChime(freq = 660) {
   if (!soundsOn) return;
+
   audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(freq * 1.22, audioCtx.currentTime + .16);
-  gain.gain.setValueAtTime(.0001, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.09, audioCtx.currentTime + .02);
-  gain.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime + .28);
-  osc.connect(gain).connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + .3);
+
+  const startChime = () => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.22, audioCtx.currentTime + .16);
+    gain.gain.setValueAtTime(.0001, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.09, audioCtx.currentTime + .02);
+    gain.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime + .28);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + .3);
+  };
+
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().then(startChime).catch(() => {});
+  } else {
+    startChime();
+  }
 }
 
 soundToggle?.addEventListener('click', () => {
-  soundsOn = !soundsOn;
+  const turningOn = !soundsOn;
+  if (!turningOn) playChime(520);
+  soundsOn = turningOn;
   soundToggle.setAttribute('aria-pressed', String(soundsOn));
   soundToggle.innerHTML = `<span aria-hidden="true">♫</span> Sounds ${soundsOn ? 'on' : 'off'}`;
   if (soundsOn) playChime(720);
 });
 
+// Capture clicks before component handlers can stop propagation (the heart buttons do this).
+// This keeps sound feedback consistent for links, filters, likes, gallery controls and mobile magic.
 document.addEventListener('click', (event) => {
-  if (event.target.closest('button, a')) playChime(620 + Math.random() * 140);
-});
+  const control = event.target.closest('button, a');
+  if (!control || control === soundToggle) return;
+  playChime(620 + Math.random() * 140);
+}, true);
 
 const savedHearts = new Set(JSON.parse(localStorage.getItem('lucy-art-hearts') || '[]'));
 function refreshHearts() {
