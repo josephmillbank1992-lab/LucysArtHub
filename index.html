@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ff9ed8" />
+  <meta name="description" content="Lucy's Belle Art Castle, a cheerful gallery of drawings, colouring and creative ideas by a seven-year-old artist." />
+  <title>Lucy's Belle Art Castle</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="sparkle-layer" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Lucy's Belle Art Castle home">
+      <span class="brand-mark" aria-hidden="true">♛</span>
+      <span><strong>Lucy's Belle</strong><small>Art Castle</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#gallery">Gallery</a>
+      <a href="#artist">Meet the artist</a>
+      <a href="#magic">Magic swap</a>
+    </nav>
+    <button class="sound-toggle pill-button subtle" type="button" aria-pressed="false" title="Turn little musical chimes on or off">
+      <span aria-hidden="true">♫</span> Sounds off
+    </button>
+  </header>
+
+  <main id="top">
+    <section class="hero section-shell">
+      <div class="hero-copy">
+        <span class="eyebrow">Welcome to the castle ✨</span>
+        <h1>Lucy's Famous <span>Artworks</span></h1>
+        <p class="hero-intro">A bright, princessy gallery full of drawings, colouring and ideas from a 7-year-old artist who has been practising her whole life.</p>
+        <div class="hero-actions">
+          <a class="pill-button primary" href="#gallery">See the art</a>
+          <button class="pill-button secondary" id="randomHero" type="button">Surprise me 🎨</button>
+        </div>
+        <div class="hero-note">
+          <span class="heart-badge" aria-hidden="true">♥</span>
+          <p><strong>Lucy's dream:</strong> to be an artist and an art teacher.</p>
+        </div>
+      </div>
+
+      <div class="hero-stage" aria-label="Featured artwork">
+        <div class="castle-sky" aria-hidden="true">
+          <span class="cloud cloud-one"></span>
+          <span class="cloud cloud-two"></span>
+          <span class="star star-one">✦</span>
+          <span class="star star-two">✦</span>
+          <span class="castle castle-left"></span>
+          <span class="castle castle-right"></span>
+        </div>
+        <article class="featured-frame">
+          <span class="ribbon">2nd place winner 🏆</span>
+          <img src="/assets/eeveely.webp" alt="Lucy's Eeveely artwork, drawn inside a Pokémon-style card template" />
+          <div class="featured-caption">
+            <div>
+              <span>Lucy's favourite</span>
+              <strong>Eeveely</strong>
+            </div>
+            <button class="heart-button featured-heart" type="button" data-art="eeveely" aria-label="Favourite Eeveely">♡</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="marquee" aria-label="Things Lucy loves">
+      <div class="marquee-track">
+        <span>♥ Cute dogs</span><span>✦ Unicorns</span><span>♛ Princesses</span><span>✎ Drawing people</span><span>✨ Sparkles</span><span>♥ Family & friends</span>
+        <span>♥ Cute dogs</span><span>✦ Unicorns</span><span>♛ Princesses</span><span>✎ Drawing people</span><span>✨ Sparkles</span><span>♥ Family & friends</span>
+      </div>
+    </section>
+
+    <section class="gallery-section section-shell" id="gallery">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">The castle gallery</span>
+          <h2>Pick a room and explore</h2>
+          <p>Every picture gets the same size frame so the art stays the star.</p>
+        </div>
+        <button class="pill-button secondary" id="randomGallery" type="button">Show me a random picture ✨</button>
+      </div>
+
+      <div class="filter-row" role="group" aria-label="Filter artwork">
+        <button class="filter-chip active" data-filter="all" type="button">All art</button>
+        <button class="filter-chip" data-filter="descendants" type="button">Descendants</button>
+        <button class="filter-chip" data-filter="pokemon" type="button">Pokémon inspired</button>
+        <button class="filter-chip" data-filter="animals" type="button">Animals</button>
+        <button class="filter-chip" data-filter="colouring" type="button">Colouring</button>
+      </div>
+
+      <div class="art-grid" id="artGrid">
+        <article class="art-card" data-category="pokemon colouring" data-id="eeveely">
+          <button class="art-image-button" type="button" aria-label="Open Eeveely artwork">
+            <span class="award-chip">2nd place 🏆</span>
+            <img src="/assets/eeveely.webp" alt="Eeveely artwork by Lucy" loading="lazy" />
+          </button>
+          <div class="art-meta">
+            <div>
+              <span>Pokémon inspired</span>
+              <h3>Eeveely</h3>
+            </div>
+            <button class="heart-button" type="button" data-art="eeveely" aria-label="Favourite Eeveely">♡</button>
+          </div>
+          <p>Lucy's favourite picture. It won 2nd place in a Pokémon drawing competition.</p>
+        </article>
+
+        <article class="art-card" data-category="animals" data-id="red-kite-emily">
+          <button class="art-image-button" type="button" aria-label="Open Red Kite Emily artwork">
+            <img src="/assets/red-kite-emily.webp" alt="A brown red kite bird in flight, drawn by Lucy" loading="lazy" />
+          </button>
+          <div class="art-meta">
+            <div>
+              <span>Animals</span>
+              <h3>Red Kite Emily</h3>
+            </div>
+            <button class="heart-button" type="button" data-art="red-kite-emily" aria-label="Favourite Red Kite Emily">♡</button>
+          </div>
+          <p>A flying red kite with big wings, tiny details and Lucy's own name for the bird.</p>
+        </article>
+
+        <article class="art-card" data-category="descendants colouring" data-id="chloe-red">
+          <button class="art-image-button" type="button" aria-label="Open Chloe and Red artwork">
+            <img src="/assets/chloe-and-red.webp" alt="A coloured-in picture of Chloe and Red by Lucy" loading="lazy" />
+          </button>
+          <div class="art-meta">
+            <div>
+              <span>Descendants</span>
+              <h3>Chloe &amp; Red</h3>
+            </div>
+            <button class="heart-button" type="button" data-art="chloe-red" aria-label="Favourite Chloe and Red">♡</button>
+          </div>
+          <p>Lucy likes using the movie to help decide which colours and backgrounds belong in the picture.</p>
+        </article>
+
+        <article class="art-card" data-category="descendants colouring" data-id="red">
+          <button class="art-image-button" type="button" aria-label="Open Red artwork">
+            <img src="/assets/red.webp" alt="A coloured-in picture of Red by Lucy" loading="lazy" />
+          </button>
+          <div class="art-meta">
+            <div>
+              <span>Descendants</span>
+              <h3>Red</h3>
+            </div>
+            <button class="heart-button" type="button" data-art="red" aria-label="Favourite Red">♡</button>
+          </div>
+          <p>Careful colouring, hearts and lots of small details inspired by one of Lucy's favourite things to watch.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="magic-section section-shell" id="magic">
+      <div class="magic-card">
+        <div class="magic-copy">
+          <span class="eyebrow">Lucy's magic idea</span>
+          <h2>Make the picture swap!</h2>
+          <p>Lucy wanted pictures that can change into other pictures. Press the button and the castle frame will magically swap artwork.</p>
+          <button class="pill-button primary" id="swapArt" type="button">Swap the picture ✨</button>
+        </div>
+        <div class="swap-frame" aria-live="polite">
+          <img id="swapImage" src="/assets/red-kite-emily.webp" alt="Red Kite Emily artwork" />
+          <div class="swap-label" id="swapLabel">Red Kite Emily</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="artist-section section-shell" id="artist">
+      <div class="artist-panel">
+        <div class="artist-icon" aria-hidden="true">🎨</div>
+        <div>
+          <span class="eyebrow">Meet the artist</span>
+          <h2>Hi, I'm Lucy!</h2>
+          <p class="artist-lead">I'm 7 and I've been practising art my whole life. I want to be an artist and an art teacher when I grow up.</p>
+          <div class="artist-facts">
+            <div><strong>I love drawing</strong><span>My family, friends and people</span></div>
+            <div><strong>I get ideas from</strong><span>Things I watch and things I do</span></div>
+            <div><strong>I'm practising</strong><span>Drawing noses better</span></div>
+            <div><strong>I make art because</strong><span>It's fun!</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quote-card">
+        <div class="quote-heart" aria-hidden="true">♥</div>
+        <p>“We have some good pictures today!”</p>
+        <span>Lucy's future gallery introduction</span>
+        <button class="pill-button secondary confetti-button" id="confettiButton" type="button">Celebrate the art 🎉</button>
+      </div>
+    </section>
+
+    <section class="play-section section-shell">
+      <div class="play-card">
+        <span class="eyebrow">One silly thing was allowed</span>
+        <h2>Can you catch the button?</h2>
+        <p>Lucy asked for buttons that run away. This one took that very seriously.</p>
+        <div class="runaway-zone" id="runawayZone">
+          <button class="pill-button runaway-button" id="runawayButton" type="button">Catch me! 🦄</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-brand"><span aria-hidden="true">♛</span><strong>Lucy's Belle Art Castle</strong></div>
+    <p>A little corner of the internet for art, imagination and happy colours.</p>
+    <p class="privacy-note">Only Lucy's first name and artwork are shared here. No school, location or personal contact details.</p>
+    <p class="builder-credit">Designed &amp; built with Dad · <strong>The Website Mill</strong></p>
+  </footer>
+
+  <dialog class="art-modal" id="artModal">
+    <button class="modal-close" id="modalClose" type="button" aria-label="Close artwork">×</button>
+    <img id="modalImage" src="" alt="" />
+    <div class="modal-copy">
+      <span id="modalCategory"></span>
+      <h2 id="modalTitle"></h2>
+      <p id="modalDescription"></p>
+    </div>
+  </dialog>
+
+  <script src="/app.js"></script>
+</body>
+</html>
