@@ -1,4 +1,6 @@
 (() => {
+  const SUPABASE_URL = 'https://wcpmshpvpiogecjupdcn.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_b6bd349iOBoNhDTfaOxAMA_5Z7Yoqlw';
   const artworkIds = ['eeveely', 'red-kite-emily', 'chloe-red', 'red'];
   const titleToId = {
     Eeveely: 'eeveely',
@@ -19,13 +21,23 @@
   const commentStatus = document.querySelector('#commentStatus');
   const commentSubmit = document.querySelector('#commentSubmit');
   let currentArtworkId = 'eeveely';
-  let apiReady = true;
+
+  function sbFetch(path, options = {}) {
+    return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      ...options,
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        ...options.headers
+      }
+    });
+  }
 
   function getVisitorId() {
     const key = 'lucy-art-visitor-id';
     let id = localStorage.getItem(key);
     if (!id) {
-      id = (crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+      id = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       localStorage.setItem(key, id);
     }
     return id;
@@ -48,25 +60,14 @@
     if (commentArtwork) commentArtwork.value = currentArtworkId;
   }
 
-  function localFallbackCounts() {
-    artworkIds.forEach(id => {
-      const loved = document.querySelector(`.heart-button[data-art="${id}"]`)?.classList.contains('loved');
-      setCount(id, loved ? 1 : 0);
-    });
-  }
-
   async function loadCounts() {
     try {
-      const response = await fetch('/api/engagement', { headers: { Accept: 'application/json' } });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        if (response.status === 503) apiReady = false;
-        throw new Error(data.error || 'Could not load likes');
-      }
-      artworkIds.forEach(id => setCount(id, data.counts?.[id] || 0));
+      const response = await sbFetch('art_likes?select=artwork_id');
+      if (!response.ok) throw new Error('Could not load likes');
+      const rows = await response.json();
+      artworkIds.forEach(id => setCount(id, rows.filter(row => row.artwork_id === id).length));
     } catch (error) {
-      console.info('Using preview like counts until the private data store is connected.', error);
-      localFallbackCounts();
+      console.error('Could not load public like totals.', error);
     }
   }
 
@@ -74,30 +75,32 @@
     button.addEventListener('click', async () => {
       const artworkId = button.dataset.art;
       const liked = button.classList.contains('loved');
-
-      if (!apiReady) {
-        setCount(artworkId, liked ? 1 : 0);
-        return;
-      }
-
       const previous = counts[artworkId] || 0;
       setCount(artworkId, Math.max(0, previous + (liked ? 1 : -1)));
 
       try {
-        const response = await fetch('/api/engagement', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ type: 'like', artworkId, visitorId, liked })
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          if (response.status === 503) apiReady = false;
-          throw new Error(data.error || 'Could not save like');
+        let response;
+        if (liked) {
+          response = await sbFetch('art_likes', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Prefer: 'resolution=ignore-duplicates,return=minimal'
+            },
+            body: JSON.stringify({ artwork_id: artworkId, visitor_id: visitorId })
+          });
+        } else {
+          response = await sbFetch(`art_likes?artwork_id=eq.${encodeURIComponent(artworkId)}&visitor_id=eq.${encodeURIComponent(visitorId)}`, {
+            method: 'DELETE',
+            headers: { Prefer: 'return=minimal' }
+          });
         }
-        setCount(artworkId, data.count);
+
+        if (!response.ok) throw new Error('Could not save like');
+        await loadCounts();
       } catch (error) {
-        console.info('Like saved on this device for preview only.', error);
-        setCount(artworkId, liked ? Math.max(1, previous) : Math.max(0, previous - 1));
+        console.error(error);
+        setCount(artworkId, previous);
       }
     });
   });
@@ -113,9 +116,7 @@
   }
 
   document.querySelectorAll('.art-card .art-image-button').forEach(button => {
-    button.addEventListener('click', () => {
-      selectArtwork(button.closest('.art-card')?.dataset.id);
-    });
+    button.addEventListener('click', () => selectArtwork(button.closest('.art-card')?.dataset.id));
   });
 
   document.querySelectorAll('#randomHero, #randomGallery').forEach(button => {
@@ -135,34 +136,31 @@
   commentForm?.addEventListener('submit', async event => {
     event.preventDefault();
     const formData = new FormData(commentForm);
-    const name = String(formData.get('name') || '').trim();
-    const comment = String(formData.get('comment') || '').trim();
+    const name = String(formData.get('name') || '').trim().slice(0, 40);
+    const comment = String(formData.get('comment') || '').trim().slice(0, 500);
     const website = String(formData.get('website') || '').trim();
 
     if (!name || !comment) return;
+    if (website) {
+      commentStatus.textContent = 'Sent! Thank you for leaving Lucy a lovely note. 💛';
+      return;
+    }
 
     commentSubmit.disabled = true;
     commentStatus.textContent = 'Sending your note to Dad’s private review panel…';
     commentStatus.className = 'comment-status';
 
     try {
-      const response = await fetch('/api/engagement', {
+      const response = await sbFetch('art_comments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ type: 'comment', artworkId: currentArtworkId, name, comment, website })
+        headers: {
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal'
+        },
+        body: JSON.stringify({ artwork_id: currentArtworkId, visitor_name: name, comment })
       });
-      const data = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
-        if (response.status === 503) {
-          apiReady = false;
-          commentStatus.textContent = 'The private comment box is ready, but Dad still needs to connect its secure data store.';
-          commentStatus.className = 'comment-status setup';
-          return;
-        }
-        throw new Error(data.error || 'Could not send comment');
-      }
-
+      if (!response.ok) throw new Error('Could not send comment');
       commentStatus.textContent = 'Sent! Thank you for leaving Lucy a lovely note. 💛';
       commentStatus.className = 'comment-status success';
       commentText.value = '';
