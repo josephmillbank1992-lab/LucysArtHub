@@ -56,16 +56,22 @@
 
   <template id="commentTemplate">
     <article class="comment-card">
-      <div class="comment-topline">
-        <div>
-          <span class="artwork-pill"></span>
-          <h3 class="visitor-name"></h3>
+      <figure class="comment-artwork-preview">
+        <img class="comment-artwork-image" src="" alt="" loading="lazy" />
+        <figcaption class="comment-artwork-name"></figcaption>
+      </figure>
+      <div class="comment-details">
+        <div class="comment-topline">
+          <div>
+            <span class="artwork-pill"></span>
+            <h3 class="visitor-name"></h3>
+          </div>
+          <time class="comment-date"></time>
         </div>
-        <time class="comment-date"></time>
-      </div>
-      <p class="comment-body"></p>
-      <div class="comment-actions">
-        <button class="delete-comment" type="button">Delete comment</button>
+        <p class="comment-body"></p>
+        <div class="comment-actions">
+          <button class="delete-comment" type="button">Delete comment</button>
+        </div>
       </div>
     </article>
   </template>
