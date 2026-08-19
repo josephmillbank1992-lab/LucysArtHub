@@ -12,16 +12,31 @@
   const lockPanel = document.querySelector('#lockPanel');
   const template = document.querySelector('#commentTemplate');
   const artworkNames = {
+    'alice-in-wonderland': 'Alice',
+    'lucy-as-belle': 'Lucy as Belle',
+    'chloe-red': 'Chloe & Red',
+    red: 'Red',
+    'autumn-and-winter': 'Autumn and Winter',
+    glinda: 'Glinda from Wicked',
+    'london-bridge': 'London Bridge',
+    'mummy-and-me': 'Mummy and Me',
+    'my-fairy-ruby': 'My Fairy Ruby',
+    'pikachu-ex': 'Pikachu Ex',
+    'queen-elizabeth': 'Queen Elizabeth',
     eeveely: 'Eeveely',
     'red-kite-emily': 'Red Kite Emily',
-    'chloe-red': 'Chloe & Red',
-    red: 'Red'
+    'my-first-picture': 'My First Picture'
   };
   const artworkImages = {
+    'alice-in-wonderland': '/assets/alice-in-wonderland.webp',
+    'lucy-as-belle': '/assets/lucy-as-belle.webp',
+    'autumn-and-winter': '/assets/autumn-and-winter.webp',
+    glinda: '/assets/glinda.webp',
     eeveely: '/assets/eeveely.webp',
     'red-kite-emily': '/assets/red-kite-emily.webp',
     'chloe-red': '/assets/chloe-and-red.webp',
-    red: '/assets/red.webp'
+    red: '/assets/red.webp',
+    'my-first-picture': '/assets/my-first-picture.webp'
   };
 
   let password = sessionStorage.getItem('lucy-art-admin-password') || '';
