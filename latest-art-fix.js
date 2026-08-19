@@ -1,6 +1,6 @@
 (() => {
   const dataFiles = {
-    'alice-in-wonderland': '/assets-data/alice-in-wonderland-v2.b64',
+    'alice-in-wonderland': '/assets-data/alice-in-wonderland-v3.b64',
     'lucy-as-belle': '/assets-data/lucy-as-belle-fix.b64',
     'autumn-and-winter': '/assets-data/autumn-and-winter-v2.b64',
     glinda: '/assets-data/glinda-v2.b64',
