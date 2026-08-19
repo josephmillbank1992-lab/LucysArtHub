@@ -1,9 +1,9 @@
 (() => {
   const dataFiles = {
-    'alice-in-wonderland': '/assets-data/alice-in-wonderland-fix.b64',
+    'alice-in-wonderland': '/assets-data/alice-in-wonderland-v2.b64',
     'lucy-as-belle': '/assets-data/lucy-as-belle-fix.b64',
-    'autumn-and-winter': '/assets-data/autumn-and-winter-fix.b64',
-    glinda: '/assets-data/glinda-fix.b64',
+    'autumn-and-winter': '/assets-data/autumn-and-winter-v2.b64',
+    glinda: '/assets-data/glinda-v2.b64',
     'my-first-picture': '/assets-data/my-first-picture-fix.b64'
   };
 
@@ -52,14 +52,15 @@
   async function loadArtwork(id, path) {
     const response = await fetch(path, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Could not load ${id}`);
-    const base64 = await response.text();
+    const base64 = (await response.text()).replace(/\s+/g, '');
+    if (!base64 || base64.length % 4 !== 0) throw new Error(`Invalid artwork data for ${id}`);
     imageUrls[id] = base64ToObjectUrl(base64);
     syncCards();
     syncModal();
   }
 
   Object.entries(dataFiles).forEach(([id, path]) => {
-    loadArtwork(id, path).catch(error => console.error('Could not load latest Lucy artwork:', error));
+    loadArtwork(id, path).catch(error => console.error('Could not load latest Lucy artwork:', id, error));
   });
 
   document.addEventListener('click', () => window.setTimeout(syncModal, 0));
