@@ -1,6 +1,13 @@
 (() => {
   const dataFiles = {
-    'alice-in-wonderland': '/assets-data/alice-in-wonderland-v3.b64',
+    'alice-in-wonderland': [
+      '/assets-data/alice-in-wonderland-v4-01.b64',
+      '/assets-data/alice-in-wonderland-v4-02.b64',
+      '/assets-data/alice-in-wonderland-v4-03.b64',
+      '/assets-data/alice-in-wonderland-v4-04.b64',
+      '/assets-data/alice-in-wonderland-v4-05.b64',
+      '/assets-data/alice-in-wonderland-v4-06.b64'
+    ],
     'lucy-as-belle': '/assets-data/lucy-as-belle-fix.b64',
     'autumn-and-winter': '/assets-data/autumn-and-winter-v2.b64',
     glinda: '/assets-data/glinda-v2.b64',
@@ -49,18 +56,22 @@
     }
   }
 
-  async function loadArtwork(id, path) {
-    const response = await fetch(path, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`Could not load ${id}`);
-    const base64 = (await response.text()).replace(/\s+/g, '');
+  async function loadArtwork(id, source) {
+    const paths = Array.isArray(source) ? source : [source];
+    const chunks = await Promise.all(paths.map(async path => {
+      const response = await fetch(path, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Could not load ${id}`);
+      return (await response.text()).replace(/\s+/g, '');
+    }));
+    const base64 = chunks.join('');
     if (!base64 || base64.length % 4 !== 0) throw new Error(`Invalid artwork data for ${id}`);
     imageUrls[id] = base64ToObjectUrl(base64);
     syncCards();
     syncModal();
   }
 
-  Object.entries(dataFiles).forEach(([id, path]) => {
-    loadArtwork(id, path).catch(error => console.error('Could not load latest Lucy artwork:', id, error));
+  Object.entries(dataFiles).forEach(([id, source]) => {
+    loadArtwork(id, source).catch(error => console.error('Could not load latest Lucy artwork:', id, error));
   });
 
   document.addEventListener('click', () => window.setTimeout(syncModal, 0));
