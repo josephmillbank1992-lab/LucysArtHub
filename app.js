@@ -10,6 +10,7 @@ const assetDataFiles = {
   'queen-elizabeth': '/assets-data/queen-elizabeth.b64'
 };
 const assetUrls = {};
+const placeholderImage = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22850%22 height=%22650%22 viewBox=%220 0 850 650%22%3E%3Crect width=%22850%22 height=%22650%22 fill=%22%23fff7fc%22/%3E%3C/svg%3E';
 
 const artworks = {
   'chloe-red': { title: 'Chloe & Red', category: 'Descendants', tags: 'descendants colouring', age: 7, image: '/assets/chloe-and-red.webp', alt: 'A coloured-in picture of Chloe and Red by Lucy', description: 'Lucy likes using the movie to help decide which colours and backgrounds belong in the picture.' },
@@ -29,7 +30,7 @@ function cardMarkup(id) {
   return `<article class="art-card" data-category="${art.tags}" data-id="${id}" data-age="${art.age}">
     <button class="art-image-button" type="button" aria-label="Open ${art.title} artwork">
       ${art.award ? `<span class="award-chip">${art.award}</span>` : ''}
-      <img src="${art.image}" alt="${art.alt}" loading="lazy" />
+      <img src="${placeholderImage}" alt="${art.alt}" loading="lazy" />
     </button>
     <div class="art-meta">
       <div><div class="art-tag-line"><span>${art.category}</span><span class="art-age">Age ${art.age}</span></div><h3>${art.title}</h3></div>
@@ -81,26 +82,40 @@ function buildGallery() {
 
 buildGallery();
 
-async function loadArtworkAssets() {
-  await Promise.all(Object.entries(assetDataFiles).map(async ([id, path]) => {
-    const response = await fetch(path);
-    if (!response.ok) throw new Error(`Could not load ${id}`);
-    const base64 = (await response.text()).trim();
+async function loadArtworkAsset(id, path) {
+  try {
+    const response = await fetch(path, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Could not load ${id} (${response.status})`);
+    const base64 = (await response.text()).replace(/\s+/g, '');
+    if (!base64 || base64.length % 4 !== 0) throw new Error(`Invalid artwork data for ${id}`);
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-    assetUrls[id] = URL.createObjectURL(new Blob([bytes], { type: 'image/webp' }));
-  }));
-  document.querySelectorAll('.art-card img').forEach(img => {
-    const id = img.closest('.art-card')?.dataset.id;
-    if (id && assetUrls[id]) img.src = assetUrls[id];
-  });
-  const featured = document.querySelector('.featured-frame img');
-  if (featured && assetUrls.eeveely) featured.src = assetUrls.eeveely;
-  const swapImage = document.querySelector('#swapImage');
-  if (swapImage && assetUrls['red-kite-emily']) swapImage.src = assetUrls['red-kite-emily'];
+    const url = URL.createObjectURL(new Blob([bytes], { type: 'image/webp' }));
+    assetUrls[id] = url;
+
+    document.querySelectorAll(`.art-card[data-id="${id}"] img`).forEach(img => { img.src = url; });
+    if (id === 'eeveely') {
+      const featured = document.querySelector('.featured-frame img');
+      if (featured) featured.src = url;
+    }
+    if (id === 'red-kite-emily') {
+      const swapImage = document.querySelector('#swapImage');
+      if (swapImage) swapImage.src = url;
+    }
+  } catch (error) {
+    console.error(`Artwork loading error for ${id}:`, error);
+    const fallback = artworks[id]?.image;
+    if (fallback && ['eeveely', 'red-kite-emily', 'chloe-red', 'red'].includes(id)) {
+      document.querySelectorAll(`.art-card[data-id="${id}"] img`).forEach(img => { img.src = fallback; });
+    }
+  }
 }
-loadArtworkAssets().catch(error => console.error('Artwork loading error:', error));
+
+function loadArtworkAssets() {
+  Object.entries(assetDataFiles).forEach(([id, path]) => loadArtworkAsset(id, path));
+}
+loadArtworkAssets();
 
 const modal = document.querySelector('#artModal');
 const modalImage = document.querySelector('#modalImage');
@@ -130,7 +145,7 @@ function refreshHearts() { document.querySelectorAll('.heart-button').forEach(bu
 refreshHearts();
 document.querySelectorAll('.heart-button').forEach(button => button.addEventListener('click', event => { event.stopPropagation(); const id = button.dataset.art; savedHearts.has(id) ? savedHearts.delete(id) : savedHearts.add(id); localStorage.setItem('lucy-art-hearts', JSON.stringify([...savedHearts])); refreshHearts(); }));
 
-function openArtwork(id) { const art = artworks[id]; if (!art) return; modalImage.src = assetUrls[id] || art.image; modalImage.alt = art.alt; modalTitle.textContent = art.title; modalCategory.textContent = `${art.category} · Age ${art.age}`; modalDescription.textContent = art.description; modal.showModal(); }
+function openArtwork(id) { const art = artworks[id]; if (!art) return; modalImage.src = assetUrls[id] || (['eeveely', 'red-kite-emily', 'chloe-red', 'red'].includes(id) ? art.image : placeholderImage); modalImage.alt = art.alt; modalTitle.textContent = art.title; modalCategory.textContent = `${art.category} · Age ${art.age}`; modalDescription.textContent = art.description; modal.showModal(); }
 document.querySelectorAll('.art-card .art-image-button').forEach(button => button.addEventListener('click', () => openArtwork(button.closest('.art-card').dataset.id)));
 document.querySelector('#modalClose')?.addEventListener('click', () => modal.close());
 modal?.addEventListener('click', event => { const rect = modal.getBoundingClientRect(); if (!(event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom)) modal.close(); });
