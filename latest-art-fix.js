@@ -1,46 +1,68 @@
 (() => {
-  const latestArt = {
-    'alice-in-wonderland': '/assets/alice-in-wonderland.webp',
-    'lucy-as-belle': '/assets/lucy-as-belle.webp',
-    'autumn-and-winter': '/assets/autumn-and-winter.webp',
-    glinda: '/assets/glinda.webp',
-    'my-first-picture': '/assets/my-first-picture.webp'
+  const dataFiles = {
+    'alice-in-wonderland': '/assets-data/alice-in-wonderland-fix.b64',
+    'lucy-as-belle': '/assets-data/lucy-as-belle-fix.b64',
+    'autumn-and-winter': '/assets-data/autumn-and-winter-fix.b64',
+    glinda: '/assets-data/glinda-fix.b64',
+    'my-first-picture': '/assets-data/my-first-picture-fix.b64'
   };
 
+  const titleToId = {
+    Alice: 'alice-in-wonderland',
+    'Lucy as Belle': 'lucy-as-belle',
+    'Autumn and Winter': 'autumn-and-winter',
+    'Glinda from Wicked': 'glinda',
+    'My First Picture': 'my-first-picture'
+  };
+
+  const imageUrls = {};
+
+  function base64ToObjectUrl(base64) {
+    const clean = base64.replace(/\s+/g, '');
+    const binary = atob(clean);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+    return URL.createObjectURL(new Blob([bytes], { type: 'image/webp' }));
+  }
+
   function syncCards() {
-    Object.entries(latestArt).forEach(([id, src]) => {
-      const img = document.querySelector(`.art-card[data-id="${id}"] img`);
-      if (img && img.src !== new URL(src, window.location.href).href) img.src = src;
+    Object.entries(imageUrls).forEach(([id, src]) => {
+      document.querySelectorAll(`.art-card[data-id="${id}"] img`).forEach(img => {
+        if (img.src !== src) img.src = src;
+      });
     });
   }
 
   function syncModal() {
     const modal = document.querySelector('#artModal');
+    if (!modal?.open) return;
     const title = document.querySelector('#modalTitle')?.textContent?.trim();
-    if (!modal?.open || !title) return;
-    const titleToId = {
-      Alice: 'alice-in-wonderland',
-      'Lucy as Belle': 'lucy-as-belle',
-      'Autumn and Winter': 'autumn-and-winter',
-      'Glinda from Wicked': 'glinda',
-      'My First Picture': 'my-first-picture'
-    };
     const id = titleToId[title];
-    if (!id) return;
+    if (!id || !imageUrls[id]) return;
+
     const image = document.querySelector('#modalImage');
-    if (image) image.src = latestArt[id];
+    if (image && image.src !== imageUrls[id]) image.src = imageUrls[id];
+
     if (id === 'my-first-picture') {
       const category = document.querySelector('#modalCategory');
       if (category) category.textContent = 'First artwork · 4 months old';
     }
   }
 
-  syncCards();
-  document.addEventListener('click', () => window.setTimeout(() => {
+  async function loadArtwork(id, path) {
+    const response = await fetch(path, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Could not load ${id}`);
+    const base64 = await response.text();
+    imageUrls[id] = base64ToObjectUrl(base64);
     syncCards();
     syncModal();
-  }, 0));
+  }
 
+  Object.entries(dataFiles).forEach(([id, path]) => {
+    loadArtwork(id, path).catch(error => console.error('Could not load latest Lucy artwork:', error));
+  });
+
+  document.addEventListener('click', () => window.setTimeout(syncModal, 0));
   const observer = new MutationObserver(() => {
     syncCards();
     syncModal();
