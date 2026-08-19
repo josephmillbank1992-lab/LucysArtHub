@@ -1,11 +1,150 @@
 (() => {
+  const extraArtworks = {
+    'alice-in-wonderland': {
+      title: 'Alice',
+      category: 'Little Friends',
+      tags: 'little-friends little friends alice wonderland colouring',
+      age: 7,
+      image: '/assets/alice-in-wonderland.webp',
+      alt: 'Alice in Wonderland artwork by Lucy',
+      description: 'Alice and her little white rabbit friend, coloured with bright blues, purples and lots of tiny storybook details.'
+    },
+    'lucy-as-belle': {
+      title: 'Lucy as Belle',
+      category: 'Princesses',
+      tags: 'princesses colouring belle',
+      age: 7,
+      image: '/assets/lucy-as-belle.webp',
+      alt: 'Lucy as Belle artwork by Lucy',
+      description: 'Lucy imagined herself as Belle, complete with the blue dress, big bow and a very important little teacup.'
+    },
+    'autumn-and-winter': {
+      title: 'Autumn and Winter',
+      category: 'Seasons',
+      tags: 'seasons drawing autumn winter',
+      age: 6,
+      image: '/assets/autumn-and-winter.webp',
+      alt: 'Autumn and Winter artwork by Lucy',
+      description: 'Two seasons side by side, with Lucy imagining how the same little world changes from autumn rain to winter snow.'
+    },
+    glinda: {
+      title: 'Glinda from Wicked',
+      category: 'Characters',
+      tags: 'characters wicked glinda drawing',
+      age: 6,
+      image: '/assets/glinda.webp',
+      alt: 'Glinda from Wicked artwork by Lucy',
+      description: 'Lucy’s drawing of Glinda, with a sparkling crown, pink dress and plenty of character.'
+    },
+    'my-first-picture': {
+      title: 'My First Picture',
+      category: 'First artwork',
+      tags: 'first artwork painting baby',
+      age: 0,
+      ageLabel: '4 months old',
+      image: '/assets/my-first-picture.webp',
+      alt: 'Lucy’s first artwork, painted at four months old',
+      description: 'Lucy’s very first artwork, made at just four months old — proof she has loved making art from right at the beginning.'
+    }
+  };
+
+  if (typeof artworks !== 'undefined' && !artworks['alice-in-wonderland']) {
+    Object.assign(artworks, extraArtworks);
+
+    const orderedIds = [
+      'alice-in-wonderland', 'lucy-as-belle', 'chloe-red', 'red',
+      'autumn-and-winter', 'glinda', 'london-bridge', 'mummy-and-me',
+      'my-fairy-ruby', 'pikachu-ex', 'queen-elizabeth', 'eeveely',
+      'red-kite-emily', 'my-first-picture'
+    ];
+    if (typeof galleryOrder !== 'undefined') galleryOrder.splice(0, galleryOrder.length, ...orderedIds);
+
+    const grid = document.querySelector('#artGrid');
+    if (grid && typeof cardMarkup === 'function') {
+      const firstCard = grid.firstElementChild;
+      if (firstCard) firstCard.insertAdjacentHTML('beforebegin', cardMarkup('alice-in-wonderland') + cardMarkup('lucy-as-belle'));
+      const londonCard = grid.querySelector('[data-id="london-bridge"]');
+      if (londonCard) londonCard.insertAdjacentHTML('beforebegin', cardMarkup('autumn-and-winter') + cardMarkup('glinda'));
+      grid.insertAdjacentHTML('beforeend', cardMarkup('my-first-picture'));
+
+      const firstAge = grid.querySelector('[data-id="my-first-picture"] .art-age');
+      if (firstAge) firstAge.textContent = '4 months old';
+
+      ['alice-in-wonderland', 'lucy-as-belle', 'autumn-and-winter', 'glinda', 'my-first-picture'].forEach(id => {
+        const card = grid.querySelector(`[data-id="${id}"]`);
+        card?.querySelector('.art-image-button')?.addEventListener('click', () => {
+          if (typeof openArtwork === 'function') openArtwork(id);
+          if (id === 'my-first-picture' && typeof modalCategory !== 'undefined' && modalCategory) modalCategory.textContent = 'First artwork · 4 months old';
+        });
+        card?.querySelector('.heart-button')?.addEventListener('click', event => {
+          event.stopPropagation();
+          const artId = event.currentTarget.dataset.art;
+          if (typeof savedHearts !== 'undefined') {
+            savedHearts.has(artId) ? savedHearts.delete(artId) : savedHearts.add(artId);
+            localStorage.setItem('lucy-art-hearts', JSON.stringify([...savedHearts]));
+            if (typeof refreshHearts === 'function') refreshHearts();
+          }
+        });
+      });
+      if (typeof refreshHearts === 'function') refreshHearts();
+    }
+
+    const filterRow = document.querySelector('.filter-row');
+    if (filterRow && !filterRow.querySelector('[data-filter="little-friends"]')) {
+      const button = document.createElement('button');
+      button.className = 'filter-chip';
+      button.dataset.filter = 'little-friends';
+      button.type = 'button';
+      button.textContent = 'Little Friends';
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+        if (typeof activeCategory !== 'undefined') activeCategory = 'little-friends';
+        if (typeof applyGalleryFilters === 'function') applyGalleryFilters();
+      });
+      filterRow.appendChild(button);
+    }
+
+    const ageFromControl = document.querySelector('#ageFrom');
+    const ageToControl = document.querySelector('#ageTo');
+    const resetAge = document.querySelector('#resetAgeFilter');
+    if (ageFromControl && ageToControl) {
+      ageFromControl.min = '0';
+      ageToControl.min = '0';
+      ageFromControl.value = '0';
+      const tickStrip = document.querySelector('.age-tick-strip');
+      if (tickStrip) tickStrip.innerHTML = '<span>4m</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>';
+      const prettyAgeRange = () => {
+        const min = Number(ageFromControl.value), max = Number(ageToControl.value);
+        const fromValue = document.querySelector('#ageFromValue'), toValue = document.querySelector('#ageToValue'), label = document.querySelector('#ageRangeLabel');
+        if (fromValue) fromValue.textContent = min === 0 ? '4 months' : String(min);
+        if (toValue) toValue.textContent = max === 0 ? '4 months' : String(max);
+        if (label) {
+          if (min === max) label.textContent = min === 0 ? '4 months old' : `Age ${min}`;
+          else if (min === 0) label.textContent = `4 months to age ${max}`;
+          else label.textContent = `Age ${min} to ${max}`;
+        }
+      };
+      ageFromControl.addEventListener('input', prettyAgeRange);
+      ageToControl.addEventListener('input', prettyAgeRange);
+      resetAge?.addEventListener('click', () => {
+        ageFromControl.value = '0'; ageToControl.value = '7';
+        if (typeof applyGalleryFilters === 'function') applyGalleryFilters();
+        prettyAgeRange();
+      });
+      if (typeof applyGalleryFilters === 'function') applyGalleryFilters();
+      prettyAgeRange();
+    }
+  }
+
   const SUPABASE_URL = 'https://wcpmshpvpiogecjupdcn.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_b6bd349iOBoNhDTfaOxAMA_5Z7Yoqlw';
-  const artworkIds = ['chloe-red','red','london-bridge','mummy-and-me','my-fairy-ruby','pikachu-ex','queen-elizabeth','eeveely','red-kite-emily'];
+  const artworkIds = ['alice-in-wonderland','lucy-as-belle','chloe-red','red','autumn-and-winter','glinda','london-bridge','mummy-and-me','my-fairy-ruby','pikachu-ex','queen-elizabeth','eeveely','red-kite-emily','my-first-picture'];
   const titleToId = {
-    'Chloe & Red':'chloe-red', Red:'red', 'London Bridge':'london-bridge', 'Mummy and Me':'mummy-and-me',
-    'My Fairy Ruby':'my-fairy-ruby', 'Pikachu Ex':'pikachu-ex', 'Queen Elizabeth':'queen-elizabeth',
-    Eeveely:'eeveely', 'Red Kite Emily':'red-kite-emily'
+    Alice:'alice-in-wonderland', 'Lucy as Belle':'lucy-as-belle', 'Chloe & Red':'chloe-red', Red:'red',
+    'Autumn and Winter':'autumn-and-winter', 'Glinda from Wicked':'glinda', 'London Bridge':'london-bridge', 'Mummy and Me':'mummy-and-me',
+    'My Fairy Ruby':'my-fairy-ruby', 'Pikachu Ex':'pikachu-ex', 'Queen Elizabeth':'queen-elizabeth', Eeveely:'eeveely',
+    'Red Kite Emily':'red-kite-emily', 'My First Picture':'my-first-picture'
   };
   const counts = Object.fromEntries(artworkIds.map(id => [id, 0]));
   const modal = document.querySelector('#artModal');
@@ -20,9 +159,7 @@
   const commentSubmit = document.querySelector('#commentSubmit');
   let currentArtworkId = 'eeveely';
 
-  function sbFetch(path, options = {}) {
-    return fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...options, headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, ...options.headers } });
-  }
+  function sbFetch(path, options = {}) { return fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...options, headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, ...options.headers } }); }
   function getVisitorId() {
     const key = 'lucy-art-visitor-id'; let id = localStorage.getItem(key);
     if (!id) { id = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`; localStorage.setItem(key, id); }
