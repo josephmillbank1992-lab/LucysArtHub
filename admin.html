@@ -10,14 +10,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/admin.css" />
+  <link rel="stylesheet" href="/admin-upload.css" />
 </head>
 <body>
   <main class="admin-shell">
     <header class="admin-header">
       <div>
         <span class="eyebrow">Private parent area</span>
-        <h1>Dad’s comment panel</h1>
-        <p>Comments left for Lucy are kept private here. They are never shown automatically on the public gallery.</p>
+        <h1>Dad’s admin panel</h1>
+        <p>Upload new artwork and review the private comments people leave for Lucy.</p>
       </div>
       <a href="/" class="back-link">← Back to the gallery</a>
     </header>
@@ -33,12 +34,46 @@
           <span>Admin password</span>
           <input id="adminPassword" type="password" autocomplete="current-password" required />
         </label>
-        <button type="submit">Open private comments</button>
+        <button type="submit">Open private panel</button>
         <p id="loginStatus" class="status" role="status"></p>
       </form>
     </section>
 
     <section class="comments-panel" id="commentsPanel" hidden>
+      <section class="upload-card" aria-labelledby="uploadHeading">
+        <span class="eyebrow">Add to Lucy’s gallery</span>
+        <h2 id="uploadHeading">Upload new artwork</h2>
+        <p>Add the photo, the artwork name and Lucy’s age when she made it. Once published, it will appear automatically in the public gallery.</p>
+
+        <form class="upload-form" id="artworkUploadForm">
+          <div class="upload-grid">
+            <label>
+              <span>Artwork name</span>
+              <input id="artworkTitle" type="text" maxlength="100" required placeholder="e.g. Princess Castle" />
+            </label>
+            <label>
+              <span>Lucy’s age</span>
+              <input id="artworkAge" type="number" min="0.1" max="18" step="0.1" required placeholder="7" />
+            </label>
+          </div>
+
+          <label>
+            <span>Photo of the artwork</span>
+            <input id="artworkPhoto" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" required />
+          </label>
+
+          <div class="upload-preview-wrap">
+            <img class="upload-preview" id="artworkPreview" src="" alt="Preview of the artwork being uploaded" hidden />
+            <p class="upload-help">The image is automatically resized and compressed before it is published, so phone photos are fine.</p>
+          </div>
+
+          <div class="upload-actions">
+            <button id="artworkUploadSubmit" type="submit">Publish artwork ✨</button>
+            <p id="artworkUploadStatus" class="upload-status" role="status"></p>
+          </div>
+        </form>
+      </section>
+
       <div class="panel-heading">
         <div>
           <span class="eyebrow">Lucy’s guestbook</span>
@@ -77,5 +112,6 @@
   </template>
 
   <script src="/admin.js"></script>
+  <script src="/admin-upload.js"></script>
 </body>
 </html>
