@@ -32,15 +32,32 @@
     const img=card.querySelector('img');if(img&&row.image_data)img.src=row.image_data;
     subjectNode(card,row.subject||'');ensureFilter(row.category||'');
   }
+  function sortGalleryByAge(rows){
+    const grid=document.querySelector('#artGrid');if(!grid)return;
+    const createdAt=new Map(rows.map(row=>[row.id,row.created_at||'']));
+    const currentOrder=new Map([...grid.querySelectorAll('.art-card')].map((card,index)=>[card.dataset.id,index]));
+    const cards=[...grid.querySelectorAll('.art-card')];
+    cards.sort((a,b)=>{
+      const ageA=Number(a.dataset.age);const ageB=Number(b.dataset.age);
+      const ageDiff=(Number.isFinite(ageB)?ageB:0)-(Number.isFinite(ageA)?ageA:0);
+      if(ageDiff!==0)return ageDiff;
+      const createdA=createdAt.get(a.dataset.id)||'';const createdB=createdAt.get(b.dataset.id)||'';
+      if(createdA&&createdB&&createdA!==createdB)return createdB.localeCompare(createdA);
+      return (currentOrder.get(a.dataset.id)??0)-(currentOrder.get(b.dataset.id)??0);
+    });
+    cards.forEach(card=>grid.appendChild(card));
+    if(typeof galleryOrder!=='undefined')galleryOrder.splice(0,galleryOrder.length,...cards.map(card=>card.dataset.id));
+  }
   async function load(){
-    const r=await sbFetch('artworks?select=id,title,age,age_label,category,subject,tags,description,image_data,created_at&published=eq.true&order=created_at.desc');if(!r.ok)throw new Error('Could not load artwork CRM data');
+    const r=await sbFetch('artworks?select=id,title,age,age_label,category,subject,tags,description,image_data,created_at&published=eq.true&order=age.desc,created_at.desc');if(!r.ok)throw new Error('Could not load artwork CRM data');
     const rows=await r.json(),grid=document.querySelector('#artGrid');if(!grid)return;
     rows.forEach(row=>{
       const existed=Boolean(artworks[row.id]);
       if(existed){Object.assign(artworks[row.id],{title:row.title,category:row.category||artworks[row.id].category,tags:`${row.tags||''} ${slug(row.category||'')} ${slug(row.subject||'')}`.trim(),age:Number(row.age),ageLabel:row.age_label||'',subject:row.subject||'',description:row.description||artworks[row.id].description});if(row.image_data)artworks[row.id].image=row.image_data;}
-      else{artworks[row.id]={title:row.title,category:row.category||'Lucy’s art',tags:`${row.tags||''} ${slug(row.category||'')} ${slug(row.subject||'')}`.trim(),age:Number(row.age),ageLabel:row.age_label||'',subject:row.subject||'',image:row.image_data,alt:`${row.title} artwork by Lucy`,description:row.description||''};galleryOrder.unshift(row.id);grid.insertAdjacentHTML('afterbegin',cardMarkup(row.id));const img=grid.querySelector(`.art-card[data-id="${row.id}"] img`);if(img&&row.image_data)img.src=row.image_data;bindNewCard(row.id);}
+      else{artworks[row.id]={title:row.title,category:row.category||'Lucy’s art',tags:`${row.tags||''} ${slug(row.category||'')} ${slug(row.subject||'')}`.trim(),age:Number(row.age),ageLabel:row.age_label||'',subject:row.subject||'',image:row.image_data,alt:`${row.title} artwork by Lucy`,description:row.description||''};galleryOrder.push(row.id);grid.insertAdjacentHTML('beforeend',cardMarkup(row.id));const img=grid.querySelector(`.art-card[data-id="${row.id}"] img`);if(img&&row.image_data)img.src=row.image_data;bindNewCard(row.id);}
       updateCard(row);
     });
+    sortGalleryByAge(rows);
     refreshHearts();if(typeof applyGalleryFilters==='function')applyGalleryFilters();
   }
 
