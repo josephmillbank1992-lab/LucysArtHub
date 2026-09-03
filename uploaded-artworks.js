@@ -58,8 +58,8 @@
     cards.sort((a,b)=>{
       const ageDiff=(Number(b.dataset.age)||0)-(Number(a.dataset.age)||0);
       if(ageDiff!==0) return ageDiff;
-      const bCreated=createdAtById.get(b.dataset.id) || '';
       const aCreated=createdAtById.get(a.dataset.id) || '';
+      const bCreated=createdAtById.get(b.dataset.id) || '';
       if(aCreated && bCreated && aCreated!==bCreated) return bCreated.localeCompare(aCreated);
       return (originalIndex.get(a.dataset.id)||0)-(originalIndex.get(b.dataset.id)||0);
     });
