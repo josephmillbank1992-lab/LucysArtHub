@@ -12,6 +12,10 @@
   loadScript('/engagement-core.js')
     .then(() => loadScript('/latest-art-fix.js'))
     .then(() => loadScript('/like-sync.js'))
-    .then(() => loadScript('/artwork-crm-gallery.js?v=age-sort-2'))
-    .catch(error => console.error('Lucy gallery enhancement failed to load:', error));
+    .then(() => loadScript('/artwork-crm-gallery.js?v=20260903-1223'))
+    .then(() => loadScript('/gallery-ready.js?v=20260903-1223'))
+    .catch(error => {
+      console.error('Lucy gallery enhancement failed to load:', error);
+      document.querySelector('#artGrid')?.classList.add('gallery-is-ready');
+    });
 })();
