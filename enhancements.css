@@ -326,6 +326,45 @@
 
 .gallery-empty.hidden { display: none; }
 
+/* Keep the old hard-coded gallery out of view until CRM data is ready. */
+#artGrid:not(.gallery-is-ready) {
+  display: block;
+  position: relative;
+  min-height: 360px;
+}
+
+#artGrid:not(.gallery-is-ready) > .art-card {
+  display: none !important;
+}
+
+#artGrid:not(.gallery-is-ready)::before {
+  content: "Opening Lucy’s latest gallery… ✨";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  padding: 28px;
+  border: 1px dashed rgba(124, 92, 229, .2);
+  border-radius: 28px;
+  background: linear-gradient(135deg, #fff7fc, #f5f7ff, #fff9db);
+  color: var(--purple);
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 700;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+#artGrid.gallery-is-ready {
+  animation: galleryReveal .22s ease-out both;
+}
+
+@keyframes galleryReveal {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 640px) {
   .desktop-play { display: none; }
   .mobile-play { display: block; }
@@ -384,4 +423,5 @@
   .marquee-track {
     animation: none;
   }
+  #artGrid.gallery-is-ready { animation: none; }
 }
