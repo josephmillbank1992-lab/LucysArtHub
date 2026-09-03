@@ -12,6 +12,6 @@
   loadScript('/engagement-core.js')
     .then(() => loadScript('/latest-art-fix.js'))
     .then(() => loadScript('/like-sync.js'))
-    .then(() => loadScript('/artwork-crm-gallery.js'))
+    .then(() => loadScript('/artwork-crm-gallery.js?v=age-sort-2'))
     .catch(error => console.error('Lucy gallery enhancement failed to load:', error));
 })();
