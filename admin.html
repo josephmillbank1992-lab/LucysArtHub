@@ -17,8 +17,8 @@
     <header class="admin-header">
       <div>
         <span class="eyebrow">Private parent area</span>
-        <h1>Dad’s admin panel</h1>
-        <p>Upload new artwork and review the private comments people leave for Lucy.</p>
+        <h1>Lucy’s artwork CRM</h1>
+        <p>Upload artwork, organise categories and subjects, edit Lucy’s gallery and review private comments.</p>
       </div>
       <a href="/" class="back-link">← Back to the gallery</a>
     </header>
@@ -30,88 +30,94 @@
         <p>Enter Dad’s private admin password. It is kept only for this browser tab and is cleared when you lock the panel.</p>
       </div>
       <form id="loginForm">
-        <label>
-          <span>Admin password</span>
-          <input id="adminPassword" type="password" autocomplete="current-password" required />
-        </label>
+        <label><span>Admin password</span><input id="adminPassword" type="password" autocomplete="current-password" required /></label>
         <button type="submit">Open private panel</button>
         <p id="loginStatus" class="status" role="status"></p>
       </form>
     </section>
 
     <section class="comments-panel" id="commentsPanel" hidden>
-      <section class="upload-card" aria-labelledby="uploadHeading">
+      <nav class="crm-jump-links" aria-label="Admin sections">
+        <a href="#addArtwork">Add artwork</a><a href="#manageCategories">Categories</a><a href="#editArtwork">Edit artwork</a><a href="#privateComments">Comments</a>
+      </nav>
+
+      <section class="upload-card" id="addArtwork" aria-labelledby="uploadHeading">
         <span class="eyebrow">Add to Lucy’s gallery</span>
         <h2 id="uploadHeading">Upload new artwork</h2>
-        <p>Add the photo, the artwork name and Lucy’s age when she made it. Once published, it will appear automatically in the public gallery.</p>
-
+        <p>Add the photo and its details. Category is the gallery grouping; subject is what or who the picture is actually about.</p>
         <form class="upload-form" id="artworkUploadForm">
-          <div class="upload-grid">
-            <label>
-              <span>Artwork name</span>
-              <input id="artworkTitle" type="text" maxlength="100" required placeholder="e.g. Princess Castle" />
-            </label>
-            <label>
-              <span>Lucy’s age</span>
-              <input id="artworkAge" type="number" min="0.1" max="18" step="0.1" required placeholder="7" />
-            </label>
+          <div class="upload-grid two-col">
+            <label><span>Artwork name</span><input id="artworkTitle" type="text" maxlength="100" required placeholder="e.g. Princess Castle" /></label>
+            <label><span>Lucy’s age</span><input id="artworkAge" type="number" min="0" max="18" step="0.1" required placeholder="7" /></label>
           </div>
-
-          <label>
-            <span>Photo of the artwork</span>
-            <input id="artworkPhoto" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" required />
-          </label>
-
+          <div class="upload-grid two-col">
+            <label><span>Category</span><select id="artworkCategory" required><option value="">Choose a category…</option></select></label>
+            <label><span>Subject</span><input id="artworkSubject" type="text" maxlength="100" required placeholder="e.g. Cinderella, a red kite, Mummy" /></label>
+          </div>
+          <label><span>Description <small>(optional)</small></span><textarea id="artworkDescription" rows="3" maxlength="500" placeholder="A short note about the picture…"></textarea></label>
+          <label><span>Photo of the artwork</span><input id="artworkPhoto" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" required /></label>
           <div class="upload-preview-wrap">
             <img class="upload-preview" id="artworkPreview" src="" alt="Preview of the artwork being uploaded" hidden />
             <p class="upload-help">The image is automatically resized and compressed before it is published, so phone photos are fine.</p>
           </div>
-
-          <div class="upload-actions">
-            <button id="artworkUploadSubmit" type="submit">Publish artwork ✨</button>
-            <p id="artworkUploadStatus" class="upload-status" role="status"></p>
-          </div>
+          <div class="upload-actions"><button id="artworkUploadSubmit" type="submit">Publish artwork ✨</button><p id="artworkUploadStatus" class="upload-status" role="status"></p></div>
         </form>
       </section>
 
-      <div class="panel-heading">
-        <div>
-          <span class="eyebrow">Lucy’s guestbook</span>
-          <h2>Private comments</h2>
-          <p id="commentSummary">Loading comments…</p>
+      <section class="upload-card" id="manageCategories" aria-labelledby="categoryHeading">
+        <span class="eyebrow">Gallery organisation</span>
+        <h2 id="categoryHeading">Categories</h2>
+        <p>These are the main gallery groups. Add a new one here and it becomes available when adding or editing artwork.</p>
+        <div class="category-pills" id="categoryList" aria-live="polite"></div>
+        <form class="inline-admin-form" id="categoryForm">
+          <label><span>New category</span><input id="newCategoryName" type="text" maxlength="60" required placeholder="e.g. History" /></label>
+          <button type="submit">Add category +</button>
+          <p id="categoryStatus" class="upload-status" role="status"></p>
+        </form>
+      </section>
+
+      <section class="upload-card" id="editArtwork" aria-labelledby="editHeading">
+        <span class="eyebrow">Artwork records</span>
+        <h2 id="editHeading">Edit existing artwork</h2>
+        <p>Select any picture in Lucy’s gallery — including the older ones — and update its details. You can also replace its image if needed.</p>
+        <label class="record-picker"><span>Choose artwork</span><select id="editArtworkSelect"><option value="">Choose artwork…</option></select></label>
+        <form class="upload-form edit-form" id="editArtworkForm" hidden>
+          <div class="edit-preview-row">
+            <img id="editArtworkPreview" class="edit-art-preview" src="" alt="Selected artwork preview" />
+            <div><strong id="editArtworkIdLabel"></strong><p>Artwork ID stays fixed so existing likes and comments remain attached.</p></div>
+          </div>
+          <div class="upload-grid two-col">
+            <label><span>Artwork name</span><input id="editArtworkTitle" type="text" maxlength="100" required /></label>
+            <label><span>Lucy’s age</span><input id="editArtworkAge" type="number" min="0" max="18" step="0.1" required /></label>
+          </div>
+          <label><span>Age label <small>(optional)</small></span><input id="editArtworkAgeLabel" type="text" maxlength="40" placeholder="e.g. 4 months old" /></label>
+          <div class="upload-grid two-col">
+            <label><span>Category</span><select id="editArtworkCategory" required></select></label>
+            <label><span>Subject</span><input id="editArtworkSubject" type="text" maxlength="100" placeholder="What or who is the artwork about?" /></label>
+          </div>
+          <label><span>Search/filter tags</span><input id="editArtworkTags" type="text" maxlength="250" placeholder="e.g. history portrait drawing" /></label>
+          <label><span>Description</span><textarea id="editArtworkDescription" rows="4" maxlength="500"></textarea></label>
+          <label><span>Replace artwork image <small>(optional)</small></span><input id="editArtworkPhoto" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" /></label>
+          <div class="upload-actions"><button id="editArtworkSubmit" type="submit">Save artwork changes</button><p id="editArtworkStatus" class="upload-status" role="status"></p></div>
+        </form>
+      </section>
+
+      <section id="privateComments">
+        <div class="panel-heading">
+          <div><span class="eyebrow">Lucy’s guestbook</span><h2>Private comments</h2><p id="commentSummary">Loading comments…</p></div>
+          <div class="panel-actions"><button id="refreshComments" type="button">Refresh</button><button id="lockPanel" type="button" class="secondary">Lock panel</button></div>
         </div>
-        <div class="panel-actions">
-          <button id="refreshComments" type="button">Refresh</button>
-          <button id="lockPanel" type="button" class="secondary">Lock panel</button>
-        </div>
-      </div>
-      <div class="comment-list" id="commentList"></div>
+        <div class="comment-list" id="commentList"></div>
+      </section>
     </section>
   </main>
 
   <template id="commentTemplate">
-    <article class="comment-card">
-      <figure class="comment-artwork-preview">
-        <img class="comment-artwork-image" src="" alt="" loading="lazy" />
-        <figcaption class="comment-artwork-name"></figcaption>
-      </figure>
-      <div class="comment-details">
-        <div class="comment-topline">
-          <div>
-            <span class="artwork-pill"></span>
-            <h3 class="visitor-name"></h3>
-          </div>
-          <time class="comment-date"></time>
-        </div>
-        <p class="comment-body"></p>
-        <div class="comment-actions">
-          <button class="delete-comment" type="button">Delete comment</button>
-        </div>
-      </div>
-    </article>
+    <article class="comment-card"><figure class="comment-artwork-preview"><img class="comment-artwork-image" src="" alt="" loading="lazy" /><figcaption class="comment-artwork-name"></figcaption></figure><div class="comment-details"><div class="comment-topline"><div><span class="artwork-pill"></span><h3 class="visitor-name"></h3></div><time class="comment-date"></time></div><p class="comment-body"></p><div class="comment-actions"><button class="delete-comment" type="button">Delete comment</button></div></div></article>
   </template>
 
   <script src="/admin.js"></script>
+  <script src="/admin-crm.js"></script>
   <script src="/admin-upload.js"></script>
 </body>
 </html>
