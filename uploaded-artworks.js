@@ -49,8 +49,25 @@
     const heart=card.querySelector('.heart-button'); if(heart)heart.setAttribute('aria-label',`Like ${row.title}`);
     ensureSubject(card,row.subject || ''); ensureCategoryFilter(row.category || '');
   }
+  function sortGalleryByAge(rows) {
+    const grid=document.querySelector('#artGrid');
+    if(!grid) return;
+    const createdAtById=new Map(rows.map(row=>[row.id, row.created_at || '']));
+    const originalIndex=new Map([...grid.querySelectorAll('.art-card')].map((card,index)=>[card.dataset.id,index]));
+    const cards=[...grid.querySelectorAll('.art-card')];
+    cards.sort((a,b)=>{
+      const ageDiff=(Number(b.dataset.age)||0)-(Number(a.dataset.age)||0);
+      if(ageDiff!==0) return ageDiff;
+      const bCreated=createdAtById.get(b.dataset.id) || '';
+      const aCreated=createdAtById.get(a.dataset.id) || '';
+      if(aCreated && bCreated && aCreated!==bCreated) return bCreated.localeCompare(aCreated);
+      return (originalIndex.get(a.dataset.id)||0)-(originalIndex.get(b.dataset.id)||0);
+    });
+    cards.forEach(card=>grid.appendChild(card));
+    if(typeof galleryOrder!=='undefined') galleryOrder.splice(0,galleryOrder.length,...cards.map(card=>card.dataset.id));
+  }
   async function loadArtworkRecords() {
-    const response=await sbFetch('artworks?select=id,title,age,age_label,category,subject,tags,description,image_data,created_at,updated_at&published=eq.true&order=created_at.desc');
+    const response=await sbFetch('artworks?select=id,title,age,age_label,category,subject,tags,description,image_data,created_at,updated_at&published=eq.true');
     if(!response.ok)throw new Error('Could not load artwork records'); const rows=await response.json(); const grid=document.querySelector('#artGrid'); if(!grid)return;
     rows.forEach(row=>{
       const existed=Boolean(artworks[row.id]);
@@ -63,6 +80,7 @@
       }
       applyRowToCard(row); bindCard(row.id);
     });
+    sortGalleryByAge(rows);
     refreshHearts(); if(typeof applyGalleryFilters==='function')applyGalleryFilters();
   }
 
