@@ -1,6 +1,4 @@
 (() => {
-  const SUPABASE_URL = 'https://wcpmshpvpiogecjupdcn.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_b6bd349iOBoNhDTfaOxAMA_5Z7Yoqlw';
   const staticImages = {
     'alice-in-wonderland':'/assets/alice-in-wonderland.webp','lucy-as-belle':'/assets/lucy-as-belle.webp','chloe-red':'/assets/chloe-and-red.webp',red:'/assets/red.webp','autumn-and-winter':'/assets/autumn-and-winter.webp',glinda:'/assets/glinda.webp','london-bridge':'/assets/london-bridge.webp','mummy-and-me':'/assets/mummy-and-me.webp','my-fairy-ruby':'/assets/my-fairy-ruby.webp','pikachu-ex':'/assets/pikachu-ex.webp','queen-elizabeth':'/assets/queen-elizabeth.webp',eeveely:'/assets/eeveely.webp','red-kite-emily':'/assets/red-kite-emily.webp','my-first-picture':'/assets/my-first-picture.webp'
   };
@@ -27,12 +25,30 @@
   let records = [];
 
   const password = () => sessionStorage.getItem('lucy-art-admin-password') || '';
-  async function rpc(name, body) {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, { method:'POST', headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json',Accept:'application/json'}, body:JSON.stringify(body) });
+
+  async function rpc(functionName, body) {
+    let response;
+    try {
+      response = await fetch('/api/admin-rpc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ functionName, body })
+      });
+    } catch {
+      throw new Error('Could not connect to the admin service. Please try again in a moment.');
+    }
+
     const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(response.status===400 || response.status===401 ? 'Your admin password was not accepted.' : (data?.message || 'Request failed.'));
+    if (!response.ok) {
+      throw new Error(
+        response.status === 401
+          ? 'Your admin password was not accepted.'
+          : (data?.message || 'The admin request could not be completed.')
+      );
+    }
     return data;
   }
+
   function setStatus(node, message, type='') { if (!node) return; node.textContent=message; node.className=`upload-status${type?` ${type}`:''}`; }
   function escapeHtml(value='') { return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function fillCategorySelect(select, selected='') {
