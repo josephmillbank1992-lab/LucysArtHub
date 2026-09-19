@@ -1,6 +1,4 @@
 (() => {
-  const SUPABASE_URL = 'https://wcpmshpvpiogecjupdcn.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_b6bd349iOBoNhDTfaOxAMA_5Z7Yoqlw';
   const loginCard = document.querySelector('#loginCard');
   const commentsPanel = document.querySelector('#commentsPanel');
   const loginForm = document.querySelector('#loginForm');
@@ -62,19 +60,27 @@
   }
 
   async function rpc(functionName, body) {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
+    let response;
+    try {
+      response = await fetch('/api/admin-rpc', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({ functionName, body })
+      });
+    } catch {
+      throw new Error('Could not connect to the admin service. Please try again in a moment.');
+    }
+
     const data = await response.json().catch(() => null);
     if (!response.ok) {
-      const error = new Error(response.status === 400 || response.status === 401 ? 'Incorrect admin password.' : 'Request failed.');
+      const error = new Error(
+        response.status === 401
+          ? 'Incorrect admin password.'
+          : (data?.message || 'The private panel could not load.')
+      );
       error.status = response.status;
       throw error;
     }
